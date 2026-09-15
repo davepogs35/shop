@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PAYMONGO-SHOP  </title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; }
+    .product { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .product img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; background: #eee; }
+    button { background: #0057ff; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    button:disabled { background: #999; }
+    #result { margin-top: 20px; padding: 16px; background: #f4f4f4; border-radius: 8px; white-space: pre-wrap; font-family: monospace; font-size: 13px; }
+    a.pay-link { display: inline-block; margin-top: 10px; background: #00b67a; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>OLASO SHOP</h1>
+  <p>Click "Buy" on an item to create an order and get a real PayMongo sandbox checkout link.</p>
+
+  <div class="product">
+    <img src="images/tshirt.jpg" alt="T-Shirt">
+    <strong>T-Shirt</strong> — PHP 350.00
+    <br><br>
+    <button onclick="buy('P001')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/totebag.jpg" alt="Tote Bag">
+    <strong>TOTE BAG</strong> — PHP 150.00
+    <br><br>
+    <button onclick="buy('P002')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/short.jpg" alt="Short">
+    <strong>SHORT</strong> — PHP 399.00
+    <br><br>
+    <button onclick="buy('P003')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/jacket.jpg" alt="Jacket">
+    <strong>JACKET</strong> — PHP 1,099.00
+    <br><br>
+    <button onclick="buy('P004')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/longsleeve.jpg" alt="Long Sleeve">
+    <strong>LONGSLEEVE</strong> — PHP 899.00
+    <br><br>
+    <button onclick="buy('P005')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/shoes.jpg" alt="Shoes">
+    <strong>SHOES</strong> — PHP 2,550.00
+    <br><br>
+    <button onclick="buy('P006')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/sandal.jpg" alt="Sandal">
+    <strong>SANDAL</strong> — PHP 1,999.00
+    <br><br>
+    <button onclick="buy('P007')">Buy</button>
+  </div>
+
+  <div class="product">
+    <img src="images/dress.jpg" alt="Dress">
+    <strong>DRESS</strong> — PHP 749.00
+    <br><br>
+    <button onclick="buy('P008')">Buy</button>
+  </div>
+
+  <div id="result" style="display:none;"></div>
+
+  <script>
+    async function buy(productId) {
+      const resultBox = document.getElementById('result');
+      resultBox.style.display = 'block';
+      resultBox.textContent = 'Creating order...';
+
+      try {
+        const res = await fetch('/order-service/index.php?action=create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: productId, quantity: 1 })
+        });
+        const data = await res.json();
+
+        if (data.checkout_url) {
+          resultBox.innerHTML =
+            'Order created: ' + data.order.id + '<br>' +
+            'Amount: PHP ' + (data.order.amount / 100).toFixed(2) + '<br><br>' +
+            '<a class="pay-link" href="' + data.checkout_url + '" target="_blank">Click here to pay (opens PayMongo)</a>';
+        } else {
+          resultBox.textContent = 'Something went wrong:\n' + JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        resultBox.textContent = 'Error: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
